@@ -8,6 +8,7 @@ import { Button } from "../components/Button";
 import { Envelope, Key } from "phosphor-react-native";
 
 export function SignIn() {
+  const [isLoading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,6 +16,28 @@ export function SignIn() {
     if (!email || !password) {
       return Alert.alert("Entrar", "Informe email e senha");
     }
+    setLoading(true);
+
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      .catch(error => {
+        console.log(error);
+        setLoading(false);
+
+        if (error.code === "auth/invalid-email") {
+          return Alert.alert("Entrar", "Email inválido.");
+        }
+
+        if (error.code === "auth/wrong-password") {
+          return Alert.alert("Entrar", "Email ou senha inválido.");
+        }
+
+        if (error.code === "auth/user-not-found") {
+          return Alert.alert("Entrar", "Email ou senha inválido.");
+        }
+
+        return Alert.alert("Entrar", "Não foi possível acessar");
+      });
   }
 
   const { colors } = useTheme();
@@ -40,7 +63,12 @@ export function SignIn() {
         onChangeText={setPassword}
       />
 
-      <Button title="Entrar" w="full" onPress={handleSignIn} />
+      <Button
+        title="Entrar"
+        w="full"
+        onPress={handleSignIn}
+        isLoading={isLoading}
+      />
     </VStack>
   );
 }
